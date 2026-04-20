@@ -8,6 +8,7 @@ const {
   PermissionsBitField
 } = require('discord.js');
 const fs = require('fs');
+const fetch = require('node-fetch');
 const path = require('path');
 const cron = require('node-cron');
 
@@ -110,6 +111,20 @@ client.on('interactionCreate', async (interaction) => {
     if (!absensi.bulanan[bulanKey]) absensi.bulanan[bulanKey] = {};
     absensi.bulanan[bulanKey][interaction.user.id] = (absensi.bulanan[bulanKey][interaction.user.id] || 0) + 1;
     saveDB();
+
+    // ===== KIRIM KE VERCEL =====
+await fetch(process.env.API_URL, {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    userId: interaction.user.id,
+    nama: interaction.user.username,
+    kelas: kelas,
+    jam: jam
+  })
+});
 
     const logChan = client.channels.cache.get(LOG_CHANNEL_ID);
     if (logChan) {
